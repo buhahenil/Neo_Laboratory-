@@ -1,0 +1,15 @@
+G:\Leb\backend\Leb.Infrastructure\bin\Debug\net8.0\Leb.Infrastructure.deps.json
+G:\Leb\backend\Leb.Infrastructure\bin\Debug\net8.0\Leb.Infrastructure.dll
+G:\Leb\backend\Leb.Infrastructure\bin\Debug\net8.0\Leb.Infrastructure.pdb
+G:\Leb\backend\Leb.Infrastructure\bin\Debug\net8.0\Leb.Core.dll
+G:\Leb\backend\Leb.Infrastructure\bin\Debug\net8.0\Leb.Core.pdb
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.csproj.AssemblyReference.cache
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.AssemblyInfoInputs.cache
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.AssemblyInfo.cs
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.csproj.CoreCompileInputs.cache
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infr.CF92CE3E.Up2Date
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.dll
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\refint\Leb.Infrastructure.dll
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.pdb
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\ref\Leb.Infrastructure.dll

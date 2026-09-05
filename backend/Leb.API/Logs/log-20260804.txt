@@ -1,0 +1,13 @@
+2026-08-04 15:59:34.003 +05:30 [INF] MOCK EMAIL SENT TO: test12@gmail.com
+SUBJECT: Verify Your Email - Diagnostic Lab
+BODY:
+Hello test,
+
+Please verify your email by clicking: https://localhost:44336/api/auth/verify-email?token=87c73decb3614738adfdd3c8fbca43e2
+2026-08-04 16:01:56.933 +05:30 [INF] MOCK EMAIL SENT TO: test12@gmail.com
+SUBJECT: Appointment Booking Confirmed
+BODY:
+Hello test,
+
+Your appointment is confirmed for 2026-08-06 at 09:00:00.
+Invoice Number: INV-20260804-4

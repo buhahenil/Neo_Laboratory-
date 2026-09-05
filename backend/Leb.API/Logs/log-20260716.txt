@@ -1,0 +1,54 @@
+2026-07-16 17:20:10.520 +05:30 [ERR] An unhandled exception occurred: Violation of UNIQUE KEY constraint 'UQ__Users__A9D10534DB842F62'. Cannot insert duplicate key in object 'dbo.Users'. The duplicate key value is (test123@gmail.com).
+The statement has been terminated.
+Microsoft.Data.SqlClient.SqlException (0x80131904): Violation of UNIQUE KEY constraint 'UQ__Users__A9D10534DB842F62'. Cannot insert duplicate key in object 'dbo.Users'. The duplicate key value is (test123@gmail.com).
+The statement has been terminated.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryConsumeMetaData()
+   at Microsoft.Data.SqlClient.SqlCommand.FinishExecuteReader(SqlDataReader ds, RunBehavior runBehavior, String resetOptionsString, Boolean isInternal, Boolean forDescribeParameterEncryption, Boolean shouldCacheForAlwaysEncrypted)
+   at Microsoft.Data.SqlClient.SqlCommand.CompleteAsyncExecuteReader(Boolean isInternal, Boolean forDescribeParameterEncryption)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteReaderAsync(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at Leb.Infrastructure.Repositories.UserRepository.CreateUserAsync(User user) in G:\Leb\backend\Leb.Infrastructure\Repositories\Repositories.cs:line 34
+   at Leb.API.Controllers.AdminController.CreateDoctor(Doctor doctor) in G:\Leb\backend\Leb.API\Controllers\AdminController.cs:line 83
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Leb.API.Middleware.ExceptionHandlingMiddleware.InvokeAsync(HttpContext context) in G:\Leb\backend\Leb.API\Middleware\ExceptionHandlingMiddleware.cs:line 25
+ClientConnectionId:186f05ee-dd39-4630-abaf-6f4a7153995d
+Error Number:2627,State:1,Class:14
+2026-07-16 17:59:42.830 +05:30 [INF] MOCK EMAIL SENT TO: patient@lab.com
+SUBJECT: Appointment Booking Confirmed
+BODY:
+Hello Alice,
+
+Your appointment is confirmed for 2026-07-24 at 09:00:00.
+Invoice Number: INV-20260716-1
+2026-07-16 19:02:30.405 +05:30 [INF] MOCK EMAIL SENT TO: patient@lab.com
+SUBJECT: Appointment Booking Confirmed
+BODY:
+Hello Alice,
+
+Your appointment is confirmed for 2026-07-17 at 09:00:00.
+Invoice Number: INV-20260716-2
+2026-07-16 19:02:34.477 +05:30 [INF] MOCK EMAIL SENT TO: patient@lab.com
+SUBJECT: Appointment Booking Confirmed
+BODY:
+Hello Alice,
+
+Your appointment is confirmed for 2026-07-17 at 09:00:00.
+Invoice Number: INV-20260716-3
