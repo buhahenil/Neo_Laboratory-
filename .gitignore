@@ -20,3 +20,6 @@ Thumbs.db
 
 # Log files
 *.log
+
+# Keep database folder private
+database/
