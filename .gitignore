@@ -1,0 +1,22 @@
+# Dependencies
+**/node_modules/
+**/.angular/
+
+# Build & Output directories
+**/dist/
+**/bin/
+**/obj/
+**/.vs/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
