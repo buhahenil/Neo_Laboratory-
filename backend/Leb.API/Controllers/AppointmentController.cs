@@ -17,6 +17,7 @@ namespace Leb.API.Controllers
     {
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IReportRepository _reportRepository;
+        private readonly IBranchRepository _branchRepository;
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IFeedbackRepository _feedbackRepository;
@@ -27,6 +28,7 @@ namespace Leb.API.Controllers
         public AppointmentController(
             IAppointmentRepository appointmentRepository,
             IReportRepository reportRepository,
+            IBranchRepository branchRepository,
             IInvoiceRepository invoiceRepository,
             IPaymentRepository paymentRepository,
             IFeedbackRepository feedbackRepository,
@@ -36,6 +38,7 @@ namespace Leb.API.Controllers
         {
             _appointmentRepository = appointmentRepository;
             _reportRepository = reportRepository;
+            _branchRepository = branchRepository;
             _invoiceRepository = invoiceRepository;
             _paymentRepository = paymentRepository;
             _feedbackRepository = feedbackRepository;
@@ -202,7 +205,7 @@ namespace Leb.API.Controllers
             return Ok(new { Message = "Simulated payment processed successfully.", TransactionId = payment.TransactionId });
         }
 
-        // --- INVOICES & REPORTS DOCK GENERATION ---
+        // --- INVOICES & REPORTS DOC GENERATION ---
         [HttpGet("{id}/invoice-pdf")]
         public async Task<IActionResult> DownloadInvoicePdf(int id)
         {
@@ -217,15 +220,23 @@ namespace Leb.API.Controllers
         }
 
         [HttpGet("{id}/report-pdf")]
-        public async Task<IActionResult> DownloadReportPdf(int id)
+        public async Task<IActionResult> DownloadReportPdf(int id, [FromQuery] bool preprinted = false)
         {
             var appointment = await _appointmentRepository.GetAppointmentByIdAsync(id);
             if (appointment == null) return NotFound(new { Message = "Appointment not found." });
 
             var reports = await _reportRepository.GetReportsByAppointmentAsync(id);
+            var branch = await _branchRepository.GetBranchByIdAsync(appointment.BranchId);
 
-            var pdfBytes = _pdfService.GenerateReportPdf(appointment, reports);
+            var pdfBytes = _pdfService.GenerateReportPdf(appointment, reports, branch, preprinted);
             return File(pdfBytes, "application/pdf", $"LabReport-{appointment.AppointmentId}.pdf");
+        }
+
+        [HttpPost("{id}/mark-printed")]
+        public async Task<IActionResult> MarkPrinted(int id, [FromBody] MarkPrintedDto dto)
+        {
+            await _appointmentRepository.LogPrintAuditAsync(id, dto.StaffId);
+            return Ok(new { Message = "Print audit logged successfully." });
         }
 
         // --- RESULTS UPLOADS & PARAMETERS ---
@@ -268,6 +279,14 @@ namespace Leb.API.Controllers
             }
 
             return Ok(new { Message = "Test result uploaded successfully.", ReportId = reportId });
+        }
+
+        [Authorize(Roles = "Staff,Admin")]
+        [HttpPut("reports/outsource-dispatch")]
+        public async Task<IActionResult> OutsourceDispatch([FromBody] OutsourceDispatchDto dto)
+        {
+            await _reportRepository.UpdateReportOutsourceAsync(dto.ReportId, dto.IsOutsourced, dto.ExternalLabName, dto.ExternalBarcode);
+            return Ok(new { Message = "Outsourced dispatch updated successfully." });
         }
 
         [HttpPost("feedback")]

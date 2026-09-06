@@ -231,6 +231,27 @@
   },
   {
     "ContainingType": "Leb.API.Controllers.AppointmentController",
+    "Method": "MarkPrinted",
+    "RelativePath": "api/Appointment/{id}/mark-printed",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "Leb.Core.DTOs.MarkPrintedDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Leb.API.Controllers.AppointmentController",
     "Method": "ProcessPayment",
     "RelativePath": "api/Appointment/{id}/payment",
     "HttpMethod": "POST",
@@ -262,6 +283,11 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      },
+      {
+        "Name": "preprinted",
+        "Type": "System.Boolean",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -367,6 +393,22 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Leb.API.Controllers.AppointmentController",
+    "Method": "OutsourceDispatch",
+    "RelativePath": "api/Appointment/reports/outsource-dispatch",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Leb.Core.DTOs.OutsourceDispatchDto",
         "IsRequired": true
       }
     ],
@@ -624,6 +666,27 @@
   },
   {
     "ContainingType": "Leb.API.Controllers.BranchController",
+    "Method": "UpdateLetterhead",
+    "RelativePath": "api/Branch/{id}/letterhead",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "letterheadDto",
+        "Type": "Leb.Core.Entities.Branch",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Leb.API.Controllers.BranchController",
     "Method": "GetSlots",
     "RelativePath": "api/Branch/{id}/slots",
     "HttpMethod": "GET",
@@ -634,6 +697,27 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Leb.API.Controllers.BranchController",
+    "Method": "UploadLetterhead",
+    "RelativePath": "api/Branch/{id}/upload-letterhead",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

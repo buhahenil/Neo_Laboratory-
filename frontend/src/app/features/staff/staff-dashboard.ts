@@ -18,6 +18,8 @@ interface StaffAppointment {
   status: string;
   paymentStatus: string;
   totalAmount: number;
+  isPrinted?: boolean;
+  printedCount?: number;
 }
 
 interface TestReportDetail {
@@ -31,6 +33,9 @@ interface TestReportDetail {
   resultValue?: string;
   remarks?: string;
   status: string;
+  isOutsourced?: boolean;
+  externalLabName?: string;
+  externalBarcode?: string;
 }
 
 @Component({
@@ -155,34 +160,50 @@ interface TestReportDetail {
               <div class="glass-card h-100" *ngIf="selectedAppId > 0; else selectPrompt">
                 <h5 class="fw-bold text-primary mb-3">Booking APP-{{ selectedAppId }} Overview</h5>
                 
-                <!-- Status Actions -->
-                <div class="d-flex gap-2 mb-4 p-2 bg-light rounded border align-items-center justify-content-between">
-                  <span class="small fw-semibold text-secondary">Step Operations:</span>
-                  <div class="d-flex gap-2">
+                <!-- Status Actions & Print Bar -->
+                <div class="d-flex flex-wrap gap-2 mb-3 p-2 bg-light rounded border align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="small fw-semibold text-secondary">Status:</span>
                     <button *ngIf="selectedApp.status === 'Pending'" (click)="updateStatus('Confirmed')" class="btn btn-sm btn-outline-info">Confirm Appointment</button>
                     <button *ngIf="selectedApp.status === 'Confirmed'" (click)="updateStatus('SampleCollected')" class="btn btn-sm btn-outline-secondary">Collect Sample</button>
                     <button *ngIf="selectedApp.status === 'ResultUploaded'" (click)="updateStatus('Completed')" class="btn btn-sm btn-success">Complete Booking</button>
                   </div>
+                  
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success-subtle text-success border border-success" *ngIf="selectedApp.isPrinted">
+                      Printed (x{{ selectedApp.printedCount || 1 }})
+                    </span>
+                    <button (click)="printReportPdf(false)" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                      <span class="material-icons fs-6">picture_as_pdf</span> Digital PDF
+                    </button>
+                    <button (click)="printReportPdf(true)" class="btn btn-sm btn-primary-custom d-flex align-items-center gap-1">
+                      <span class="material-icons fs-6">print</span> Print on Letterhead
+                    </button>
+                  </div>
                 </div>
 
                 <!-- Tests Upload form -->
-                <h6 class="fw-bold mb-3 text-secondary">Diagnostic Parameters Upload</h6>
+                <h6 class="fw-bold mb-3 text-secondary">Diagnostic Parameters & Outsourcing</h6>
                 
                 <div class="gap-3 d-grid">
                   <div class="p-3 border rounded" *ngFor="let rep of reports; let idx = index">
                     <div class="d-flex justify-content-between mb-2">
                       <span class="fw-bold text-dark">{{ rep.testName }} ({{ rep.testCode }})</span>
-                      <span class="badge" [class.bg-success]="rep.status === 'Completed'" [class.bg-warning]="rep.status === 'Pending'">
-                        {{ rep.status }}
-                      </span>
+                      <div class="d-flex gap-2 align-items-center">
+                        <span class="badge bg-warning-subtle text-warning border" *ngIf="rep.isOutsourced">Outsourced</span>
+                        <span class="badge" [class.bg-success]="rep.status === 'Completed'" [class.bg-warning]="rep.status === 'Pending'">
+                          {{ rep.status }}
+                        </span>
+                      </div>
                     </div>
                     
-                    <div class="small text-secondary mb-3">
+                    <div class="small text-secondary mb-2">
                       <span class="me-3">Sample: <strong>{{ rep.sampleType }}</strong></span>
                       <span>Ref Range: <strong>{{ rep.normalRange || 'N/A' }}</strong></span>
                     </div>
 
-                    <div class="row g-2">
+                    <!-- Result Values -->
+                    <div class="row g-2 mb-2">
                       <div class="col-md-6">
                         <label class="form-label small fw-medium">Observed Value</label>
                         <input type="text" [(ngModel)]="reports[idx].resultValue" class="form-control form-control-sm" placeholder="e.g. 14.5 g/dL" [disabled]="rep.status === 'Completed'" />
@@ -190,6 +211,26 @@ interface TestReportDetail {
                       <div class="col-md-6">
                         <label class="form-label small fw-medium">Remarks / Diagnostic Flags</label>
                         <input type="text" [(ngModel)]="reports[idx].remarks" class="form-control form-control-sm" placeholder="Normal/Borderline" [disabled]="rep.status === 'Completed'" />
+                      </div>
+                    </div>
+
+                    <!-- Outsourcing Dispatch Box -->
+                    <div class="p-2 bg-light rounded border mt-2">
+                      <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" role="switch" [id]="'outsourceSwitch_' + rep.reportId" [(ngModel)]="reports[idx].isOutsourced" (change)="saveOutsourceDispatch(rep)" />
+                        <label class="form-check-label small fw-bold text-secondary" [for]="'outsourceSwitch_' + rep.reportId">Outsource to External Partner Lab</label>
+                      </div>
+
+                      <div class="row g-2 mt-1" *ngIf="rep.isOutsourced">
+                        <div class="col-md-6">
+                          <input type="text" [(ngModel)]="reports[idx].externalLabName" class="form-control form-control-sm" placeholder="External Lab Name (e.g. Thyrocare)" />
+                        </div>
+                        <div class="col-md-6">
+                          <input type="text" [(ngModel)]="reports[idx].externalBarcode" class="form-control form-control-sm" placeholder="Sample Barcode No." />
+                        </div>
+                        <div class="col-12 text-end">
+                          <button (click)="saveOutsourceDispatch(rep)" class="btn btn-sm btn-outline-secondary py-0 px-2 small">Save Dispatch Details</button>
+                        </div>
                       </div>
                     </div>
                     
@@ -218,33 +259,33 @@ interface TestReportDetail {
           <!-- Branch Dashboard Analytics Tab -->
           <div *ngIf="activeSubTab === 'analytics'">
             <!-- Filters Bar -->
-            <div class="glass-card mb-4 text-dark">
-              <div class="row g-3 align-items-end">
-                <div class="col-sm-6 col-md-3">
-                  <label class="form-label small fw-bold text-muted mb-1 text-white-50">Year</label>
-                  <select [(ngModel)]="filterYear" (change)="loadBranchAnalytics()" class="form-select form-select-sm">
+            <div class="glass-card mb-4 p-4">
+              <div class="d-flex flex-wrap gap-3 align-items-end">
+                <div style="flex: 1; min-width: 120px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">Year</label>
+                  <select [(ngModel)]="filterYear" (change)="loadBranchAnalytics()" class="form-select">
                     <option value="">All Years</option>
                     <option *ngFor="let y of years" [value]="y">{{ y }}</option>
                   </select>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                  <label class="form-label small fw-bold text-muted mb-1 text-white-50">Month</label>
-                  <select [(ngModel)]="filterMonth" (change)="loadBranchAnalytics()" class="form-select form-select-sm">
+                <div style="flex: 1; min-width: 130px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">Month</label>
+                  <select [(ngModel)]="filterMonth" (change)="loadBranchAnalytics()" class="form-select">
                     <option value="">All Months</option>
                     <option *ngFor="let m of months" [value]="m.value">{{ m.name }}</option>
                   </select>
                 </div>
-                <div class="col-sm-6 col-md-2">
-                  <label class="form-label small fw-bold text-muted mb-1 text-white-50">Start Date</label>
-                  <input type="date" [(ngModel)]="filterStartDate" (change)="loadBranchAnalytics()" class="form-control form-control-sm" />
+                <div style="flex: 1; min-width: 140px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">Start Date</label>
+                  <input type="date" [(ngModel)]="filterStartDate" (change)="loadBranchAnalytics()" class="form-control" />
                 </div>
-                <div class="col-sm-6 col-md-2">
-                  <label class="form-label small fw-bold text-muted mb-1 text-white-50">End Date</label>
-                  <input type="date" [(ngModel)]="filterEndDate" (change)="loadBranchAnalytics()" class="form-control form-control-sm" />
+                <div style="flex: 1; min-width: 140px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">End Date</label>
+                  <input type="date" [(ngModel)]="filterEndDate" (change)="loadBranchAnalytics()" class="form-control" />
                 </div>
-                <div class="col-sm-12 col-md-2">
-                  <button (click)="clearBranchFilters()" class="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-1 py-2">
-                    <span class="material-icons fs-6">clear</span> Clear
+                <div>
+                  <button (click)="clearBranchFilters()" class="btn border-0 bg-danger-subtle text-danger d-inline-flex align-items-center justify-content-center gap-1 px-3" style="height: 38px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;" title="Reset all filters">
+                    <span class="material-icons" style="font-size: 16px;">close</span> Clear
                   </button>
                 </div>
               </div>
@@ -324,7 +365,7 @@ interface TestReportDetail {
               <!-- Collection Chart (Manager Only) -->
               <div class="col-lg-6" *ngIf="isBranchManager()">
                 <div class="glass-card">
-                  <h6 class="fw-bold text-primary mb-3">Monthly Collection</h6>
+                  <h5 class="fw-bold text-primary text-center mb-3 fs-5">Monthly Collection</h5>
                   <div style="position: relative; height:240px;">
                     <canvas id="branchRevenueChart"></canvas>
                   </div>
@@ -334,7 +375,7 @@ interface TestReportDetail {
               <!-- Patients Growth Chart -->
               <div class="col-lg-6" [class.col-lg-12]="!isBranchManager()">
                 <div class="glass-card">
-                  <h6 class="fw-bold text-primary mb-3">Monthly Patients</h6>
+                  <h5 class="fw-bold text-primary text-center mb-3 fs-5">Monthly Patients</h5>
                   <div style="position: relative; height:240px;">
                     <canvas id="branchPatientsChart"></canvas>
                   </div>
@@ -502,6 +543,39 @@ export class StaffDashboardComponent implements OnInit {
         this.loadBranchAppointments();
         // Update selected app status locally
         this.selectedApp.status = status;
+      }
+    });
+  }
+
+  printReportPdf(preprinted: boolean): void {
+    if (!this.selectedAppId) return;
+
+    // Log print audit
+    const staffId = this.auth.currentUser()?.staffId || 1;
+    this.api.post(`appointment/${this.selectedAppId}/mark-printed`, { staffId }).subscribe({
+      next: () => {
+        if (this.selectedApp) {
+          this.selectedApp.isPrinted = true;
+          this.selectedApp.printedCount = (this.selectedApp.printedCount || 0) + 1;
+        }
+      }
+    });
+
+    const url = `${this.api.getBaseUrl()}/appointment/${this.selectedAppId}/report-pdf?preprinted=${preprinted}`;
+    window.open(url, '_blank');
+  }
+
+  saveOutsourceDispatch(rep: TestReportDetail): void {
+    const payload = {
+      reportId: rep.reportId,
+      isOutsourced: rep.isOutsourced || false,
+      externalLabName: rep.externalLabName || '',
+      externalBarcode: rep.externalBarcode || ''
+    };
+
+    this.api.put('appointment/reports/outsource-dispatch', payload).subscribe({
+      next: (res: any) => {
+        this.toast.showSuccess(res.Message || 'Outsourced dispatch updated.');
       }
     });
   }

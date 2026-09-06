@@ -13,6 +13,12 @@ namespace Leb.Core.Entities
         public DateTime? UploadedAt { get; set; }
         public string Status { get; set; } = "Pending"; // Pending, Completed
 
+        // Outsourcing Fields
+        public bool IsOutsourced { get; set; } = false;
+        public string? ExternalLabName { get; set; }
+        public string? ExternalBarcode { get; set; }
+        public DateTime? DispatchedAt { get; set; }
+
         // Joined Fields
         public string TestName { get; set; } = string.Empty;
         public string TestCode { get; set; } = string.Empty;

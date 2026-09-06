@@ -637,6 +637,33 @@ namespace Leb.Infrastructure.Repositories
             return list;
         }
 
+        public async Task UpdateBranchLetterheadAsync(int branchId, string? gujaratiTitle, string? doctor1Name, string? doctor1Degree, string? doctor2Name, string? doctor2Degree, string? timingInfo, string? letterheadImagePath)
+        {
+            using var conn = _connectionFactory.CreateConnection();
+            using var cmd = new SqlCommand(@"
+                UPDATE dbo.Branches
+                SET GujaratiTitle = ISNULL(@GujaratiTitle, GujaratiTitle),
+                    Doctor1Name = ISNULL(@Doctor1Name, Doctor1Name),
+                    Doctor1Degree = ISNULL(@Doctor1Degree, Doctor1Degree),
+                    Doctor2Name = ISNULL(@Doctor2Name, Doctor2Name),
+                    Doctor2Degree = ISNULL(@Doctor2Degree, Doctor2Degree),
+                    TimingInfo = ISNULL(@TimingInfo, TimingInfo),
+                    LetterheadImagePath = ISNULL(@LetterheadImagePath, LetterheadImagePath)
+                WHERE BranchId = @BranchId", conn);
+
+            cmd.Parameters.AddWithValue("@BranchId", branchId);
+            cmd.Parameters.AddWithValue("@GujaratiTitle", (object?)gujaratiTitle ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Doctor1Name", (object?)doctor1Name ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Doctor1Degree", (object?)doctor1Degree ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Doctor2Name", (object?)doctor2Name ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Doctor2Degree", (object?)doctor2Degree ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@TimingInfo", (object?)timingInfo ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@LetterheadImagePath", (object?)letterheadImagePath ?? DBNull.Value);
+
+            await conn.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
+        }
+
         private static Branch MapBranch(SqlDataReader reader)
         {
             return new Branch
@@ -648,7 +675,14 @@ namespace Leb.Infrastructure.Repositories
                 ContactNumber = reader.GetString(reader.GetOrdinal("ContactNumber")),
                 Email = reader.GetString(reader.GetOrdinal("Email")),
                 IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive")),
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("CreatedAt"))
+                CreatedAt = reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+                GujaratiTitle = reader.IsDBNull(reader.GetOrdinal("GujaratiTitle")) ? "નીઓ લેબોરેટરી" : reader.GetString(reader.GetOrdinal("GujaratiTitle")),
+                Doctor1Name = reader.IsDBNull(reader.GetOrdinal("Doctor1Name")) ? "Ankur Ramani" : reader.GetString(reader.GetOrdinal("Doctor1Name")),
+                Doctor1Degree = reader.IsDBNull(reader.GetOrdinal("Doctor1Degree")) ? "B.Voc , PGDMLT" : reader.GetString(reader.GetOrdinal("Doctor1Degree")),
+                Doctor2Name = reader.IsDBNull(reader.GetOrdinal("Doctor2Name")) ? "Hardik Ramani" : reader.GetString(reader.GetOrdinal("Doctor2Name")),
+                Doctor2Degree = reader.IsDBNull(reader.GetOrdinal("Doctor2Degree")) ? "BSC. Micro, MSC. Embryo, PGDMLT" : reader.GetString(reader.GetOrdinal("Doctor2Degree")),
+                TimingInfo = reader.IsDBNull(reader.GetOrdinal("TimingInfo")) ? "8:00 AM to 8:00 PM" : reader.GetString(reader.GetOrdinal("TimingInfo")),
+                LetterheadImagePath = reader.IsDBNull(reader.GetOrdinal("LetterheadImagePath")) ? null : reader.GetString(reader.GetOrdinal("LetterheadImagePath"))
             };
         }
     }
@@ -1405,8 +1439,31 @@ namespace Leb.Infrastructure.Repositories
             await cmd.ExecuteNonQueryAsync();
         }
 
+        public async Task LogPrintAuditAsync(int appointmentId, int staffId)
+        {
+            using var conn = _connectionFactory.CreateConnection();
+            using var cmd = new SqlCommand(@"
+                UPDATE dbo.Appointments
+                SET IsPrinted = 1,
+                    PrintedCount = PrintedCount + 1,
+                    LastPrintedAt = GETDATE(),
+                    PrintedByStaffId = @StaffId
+                WHERE AppointmentId = @AppointmentId", conn);
+
+            cmd.Parameters.AddWithValue("@AppointmentId", appointmentId);
+            cmd.Parameters.AddWithValue("@StaffId", staffId);
+
+            await conn.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
+        }
+
         private static Appointment MapAppointment(SqlDataReader reader)
         {
+            int colIsPrinted = HasColumn(reader, "IsPrinted") ? reader.GetOrdinal("IsPrinted") : -1;
+            int colPrintedCount = HasColumn(reader, "PrintedCount") ? reader.GetOrdinal("PrintedCount") : -1;
+            int colLastPrintedAt = HasColumn(reader, "LastPrintedAt") ? reader.GetOrdinal("LastPrintedAt") : -1;
+            int colPrintedByStaffId = HasColumn(reader, "PrintedByStaffId") ? reader.GetOrdinal("PrintedByStaffId") : -1;
+
             return new Appointment
             {
                 AppointmentId = reader.GetInt32(reader.GetOrdinal("AppointmentId")),
@@ -1423,22 +1480,36 @@ namespace Leb.Infrastructure.Repositories
                 DoctorId = reader.IsDBNull(reader.GetOrdinal("DoctorId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("DoctorId")),
                 StaffId = reader.IsDBNull(reader.GetOrdinal("StaffId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("StaffId")),
                 CreatedAt = reader.GetDateTime(reader.GetOrdinal("CreatedAt")),
+                IsPrinted = colIsPrinted != -1 && !reader.IsDBNull(colIsPrinted) && reader.GetBoolean(colIsPrinted),
+                PrintedCount = colPrintedCount != -1 && !reader.IsDBNull(colPrintedCount) ? reader.GetInt32(colPrintedCount) : 0,
+                LastPrintedAt = colLastPrintedAt != -1 && !reader.IsDBNull(colLastPrintedAt) ? reader.GetDateTime(colLastPrintedAt) : null,
+                PrintedByStaffId = colPrintedByStaffId != -1 && !reader.IsDBNull(colPrintedByStaffId) ? (int?)reader.GetInt32(colPrintedByStaffId) : null,
                 BranchName = reader.GetString(reader.GetOrdinal("BranchName")),
-                BranchAddress = reader.GetString(reader.GetOrdinal("BranchAddress")),
-                BranchCity = reader.GetString(reader.GetOrdinal("BranchCity")),
+                BranchAddress = HasColumn(reader, "BranchAddress") && !reader.IsDBNull(reader.GetOrdinal("BranchAddress")) ? reader.GetString(reader.GetOrdinal("BranchAddress")) : string.Empty,
+                BranchCity = HasColumn(reader, "BranchCity") && !reader.IsDBNull(reader.GetOrdinal("BranchCity")) ? reader.GetString(reader.GetOrdinal("BranchCity")) : string.Empty,
                 StartTime = reader.GetTimeSpan(reader.GetOrdinal("StartTime")),
                 EndTime = reader.GetTimeSpan(reader.GetOrdinal("EndTime")),
                 PatientFirstName = reader.GetString(reader.GetOrdinal("PatientFirstName")),
                 PatientLastName = reader.GetString(reader.GetOrdinal("PatientLastName")),
-                PatientEmail = reader.GetString(reader.GetOrdinal("PatientEmail")),
-                PatientPhone = reader.GetString(reader.GetOrdinal("PatientPhone")),
-                DateOfBirth = reader.GetDateTime(reader.GetOrdinal("DateOfBirth")),
-                Gender = reader.GetString(reader.GetOrdinal("Gender")),
-                DoctorFirstName = reader.IsDBNull(reader.GetOrdinal("DoctorFirstName")) ? null : reader.GetString(reader.GetOrdinal("DoctorFirstName")),
-                DoctorLastName = reader.IsDBNull(reader.GetOrdinal("DoctorLastName")) ? null : reader.GetString(reader.GetOrdinal("DoctorLastName")),
-                StaffFirstName = reader.IsDBNull(reader.GetOrdinal("StaffFirstName")) ? null : reader.GetString(reader.GetOrdinal("StaffFirstName")),
-                StaffLastName = reader.IsDBNull(reader.GetOrdinal("StaffLastName")) ? null : reader.GetString(reader.GetOrdinal("StaffLastName"))
+                PatientEmail = HasColumn(reader, "PatientEmail") && !reader.IsDBNull(reader.GetOrdinal("PatientEmail")) ? reader.GetString(reader.GetOrdinal("PatientEmail")) : string.Empty,
+                PatientPhone = HasColumn(reader, "PatientPhone") && !reader.IsDBNull(reader.GetOrdinal("PatientPhone")) ? reader.GetString(reader.GetOrdinal("PatientPhone")) : string.Empty,
+                DateOfBirth = HasColumn(reader, "DateOfBirth") && !reader.IsDBNull(reader.GetOrdinal("DateOfBirth")) ? reader.GetDateTime(reader.GetOrdinal("DateOfBirth")) : DateTime.MinValue,
+                Gender = HasColumn(reader, "Gender") && !reader.IsDBNull(reader.GetOrdinal("Gender")) ? reader.GetString(reader.GetOrdinal("Gender")) : string.Empty,
+                DoctorFirstName = HasColumn(reader, "DoctorFirstName") && !reader.IsDBNull(reader.GetOrdinal("DoctorFirstName")) ? reader.GetString(reader.GetOrdinal("DoctorFirstName")) : null,
+                DoctorLastName = HasColumn(reader, "DoctorLastName") && !reader.IsDBNull(reader.GetOrdinal("DoctorLastName")) ? reader.GetString(reader.GetOrdinal("DoctorLastName")) : null,
+                StaffFirstName = HasColumn(reader, "StaffFirstName") && !reader.IsDBNull(reader.GetOrdinal("StaffFirstName")) ? reader.GetString(reader.GetOrdinal("StaffFirstName")) : null,
+                StaffLastName = HasColumn(reader, "StaffLastName") && !reader.IsDBNull(reader.GetOrdinal("StaffLastName")) ? reader.GetString(reader.GetOrdinal("StaffLastName")) : null
             };
+        }
+
+        internal static bool HasColumn(SqlDataReader reader, string columnName)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (reader.GetName(i).Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
     }
 
@@ -1494,8 +1565,33 @@ namespace Leb.Infrastructure.Repositories
             return list;
         }
 
+        public async Task UpdateReportOutsourceAsync(int reportId, bool isOutsourced, string? externalLabName, string? externalBarcode)
+        {
+            using var conn = _connectionFactory.CreateConnection();
+            using var cmd = new SqlCommand(@"
+                UPDATE dbo.Reports
+                SET IsOutsourced = @IsOutsourced,
+                    ExternalLabName = @ExternalLabName,
+                    ExternalBarcode = @ExternalBarcode,
+                    DispatchedAt = CASE WHEN @IsOutsourced = 1 AND DispatchedAt IS NULL THEN GETDATE() ELSE DispatchedAt END
+                WHERE ReportId = @ReportId", conn);
+
+            cmd.Parameters.AddWithValue("@ReportId", reportId);
+            cmd.Parameters.AddWithValue("@IsOutsourced", isOutsourced);
+            cmd.Parameters.AddWithValue("@ExternalLabName", (object?)externalLabName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ExternalBarcode", (object?)externalBarcode ?? DBNull.Value);
+
+            await conn.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
+        }
+
         private static Report MapReport(SqlDataReader reader)
         {
+            int colIsOutsourced = AppointmentRepository.HasColumn(reader, "IsOutsourced") ? reader.GetOrdinal("IsOutsourced") : -1;
+            int colExternalLabName = AppointmentRepository.HasColumn(reader, "ExternalLabName") ? reader.GetOrdinal("ExternalLabName") : -1;
+            int colExternalBarcode = AppointmentRepository.HasColumn(reader, "ExternalBarcode") ? reader.GetOrdinal("ExternalBarcode") : -1;
+            int colDispatchedAt = AppointmentRepository.HasColumn(reader, "DispatchedAt") ? reader.GetOrdinal("DispatchedAt") : -1;
+
             return new Report
             {
                 ReportId = reader.GetInt32(reader.GetOrdinal("ReportId")),
@@ -1506,6 +1602,10 @@ namespace Leb.Infrastructure.Repositories
                 UploadedByStaffId = reader.IsDBNull(reader.GetOrdinal("UploadedByStaffId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("UploadedByStaffId")),
                 UploadedAt = reader.IsDBNull(reader.GetOrdinal("UploadedAt")) ? null : (DateTime?)reader.GetDateTime(reader.GetOrdinal("UploadedAt")),
                 Status = reader.GetString(reader.GetOrdinal("Status")),
+                IsOutsourced = colIsOutsourced != -1 && !reader.IsDBNull(colIsOutsourced) && reader.GetBoolean(colIsOutsourced),
+                ExternalLabName = colExternalLabName != -1 && !reader.IsDBNull(colExternalLabName) ? reader.GetString(colExternalLabName) : null,
+                ExternalBarcode = colExternalBarcode != -1 && !reader.IsDBNull(colExternalBarcode) ? reader.GetString(colExternalBarcode) : null,
+                DispatchedAt = colDispatchedAt != -1 && !reader.IsDBNull(colDispatchedAt) ? (DateTime?)reader.GetDateTime(colDispatchedAt) : null,
                 TestName = reader.GetString(reader.GetOrdinal("TestName")),
                 TestCode = reader.GetString(reader.GetOrdinal("TestCode")),
                 NormalRange = reader.IsDBNull(reader.GetOrdinal("NormalRange")) ? null : reader.GetString(reader.GetOrdinal("NormalRange")),

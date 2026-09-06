@@ -34,4 +34,9 @@ namespace Leb.Core.DTOs
         public string Status { get; set; } = string.Empty; // Pending, Confirmed, SampleCollected, ResultUploaded, Completed, Cancelled
         public int? StaffId { get; set; }
     }
+
+    public class MarkPrintedDto
+    {
+        public int StaffId { get; set; }
+    }
 }

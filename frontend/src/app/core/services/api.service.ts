@@ -37,4 +37,8 @@ export class ApiService {
   getBlob(path: string): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/${path}`, { responseType: 'blob' });
   }
+
+  getBaseUrl(): string {
+    return this.baseUrl;
+  }
 }

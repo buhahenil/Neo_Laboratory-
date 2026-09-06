@@ -5,6 +5,7 @@ G:\Leb\backend\Leb.Core\obj\Debug\net8.0\Leb.Core.GeneratedMSBuildEditorConfig.e
 G:\Leb\backend\Leb.Core\obj\Debug\net8.0\Leb.Core.AssemblyInfoInputs.cache
 G:\Leb\backend\Leb.Core\obj\Debug\net8.0\Leb.Core.AssemblyInfo.cs
 G:\Leb\backend\Leb.Core\obj\Debug\net8.0\Leb.Core.csproj.CoreCompileInputs.cache
+G:\Leb\backend\Leb.Core\obj\Debug\net8.0\Leb.Core.sourcelink.json
 G:\Leb\backend\Leb.Core\obj\Debug\net8.0\Leb.Core.dll
 G:\Leb\backend\Leb.Core\obj\Debug\net8.0\refint\Leb.Core.dll
 G:\Leb\backend\Leb.Core\obj\Debug\net8.0\Leb.Core.pdb

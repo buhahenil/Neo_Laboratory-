@@ -20,6 +20,12 @@ namespace Leb.Core.Entities
         public int? StaffId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Print Audit Tracking
+        public bool IsPrinted { get; set; } = false;
+        public int PrintedCount { get; set; } = 0;
+        public DateTime? LastPrintedAt { get; set; }
+        public int? PrintedByStaffId { get; set; }
+
         // Joined Fields
         public string BranchName { get; set; } = string.Empty;
         public string BranchAddress { get; set; } = string.Empty;

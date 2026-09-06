@@ -42,7 +42,7 @@ import { Chart } from 'chart.js/auto';
           </li>
           <li>
             <button class="nav-link w-100 text-start d-flex align-items-center gap-2" [class.active]="activeTab === 'users'" (click)="setTab('users')">
-              <span class="material-icons">people</span> Doctor & Staff CRUD
+              <span class="material-icons">people</span> Doctor & Staff 
             </button>
           </li>
           <li>
@@ -98,110 +98,110 @@ import { Chart } from 'chart.js/auto';
           
           <!-- 1. DASHBOARD ANALYTICS TAB -->
           <div *ngIf="activeTab === 'dashboard'">
-            <!-- Filters Bar -->
-            <div class="glass-card mb-4">
-              <div class="row g-3 align-items-end">
-                <div class="col-sm-6 col-md-3">
-                  <label class="form-label small fw-bold text-muted mb-1">Branch</label>
-                  <select [(ngModel)]="filterBranchId" (change)="loadAdminData()" class="form-select form-select-sm">
-                    <option value="">All Branches</option>
+            <!-- Parameter Filters Card -->
+            <div class="glass-card mb-4 p-4">
+              <div class="d-flex flex-wrap gap-3 align-items-end">
+                <div style="flex: 1; min-width: 140px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">Branch</label>
+                  <select [(ngModel)]="selectedBranchId" (change)="loadAdminData()" class="form-select">
+                    <option [value]="0">All Branches</option>
                     <option *ngFor="let br of branches" [value]="br.branchId">{{ br.name }}</option>
                   </select>
                 </div>
-                <div class="col-sm-6 col-md-2">
-                  <label class="form-label small fw-bold text-muted mb-1">Year</label>
-                  <select [(ngModel)]="filterYear" (change)="loadAdminData()" class="form-select form-select-sm">
+                <div style="flex: 1; min-width: 120px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">Year</label>
+                  <select [(ngModel)]="filterYear" (change)="loadAdminData()" class="form-select">
                     <option value="">All Years</option>
                     <option *ngFor="let y of years" [value]="y">{{ y }}</option>
                   </select>
                 </div>
-                <div class="col-sm-6 col-md-2">
-                  <label class="form-label small fw-bold text-muted mb-1">Month</label>
-                  <select [(ngModel)]="filterMonth" (change)="loadAdminData()" class="form-select form-select-sm">
+                <div style="flex: 1; min-width: 130px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">Month</label>
+                  <select [(ngModel)]="filterMonth" (change)="loadAdminData()" class="form-select">
                     <option value="">All Months</option>
                     <option *ngFor="let m of months" [value]="m.value">{{ m.name }}</option>
                   </select>
                 </div>
-                <div class="col-sm-6 col-md-2">
-                  <label class="form-label small fw-bold text-muted mb-1">Start Date</label>
-                  <input type="date" [(ngModel)]="filterStartDate" (change)="loadAdminData()" class="form-control form-control-sm" />
+                <div style="flex: 1; min-width: 140px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">Start Date</label>
+                  <input type="date" [(ngModel)]="filterStartDate" (change)="loadAdminData()" class="form-control" />
                 </div>
-                <div class="col-sm-6 col-md-2">
-                  <label class="form-label small fw-bold text-muted mb-1">End Date</label>
-                  <input type="date" [(ngModel)]="filterEndDate" (change)="loadAdminData()" class="form-control form-control-sm" />
+                <div style="flex: 1; min-width: 140px;">
+                  <label class="form-label small fw-bold text-secondary mb-1">End Date</label>
+                  <input type="date" [(ngModel)]="filterEndDate" (change)="loadAdminData()" class="form-control" />
                 </div>
-                <div class="col-sm-12 col-md-1">
-                  <button (click)="clearFilters()" class="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-1 py-2">
-                    <span class="material-icons fs-6">clear</span> Clear
+                <div>
+                  <button (click)="clearFilters()" class="btn border-0 bg-danger-subtle text-danger d-inline-flex align-items-center justify-content-center gap-1 px-3" style="height: 38px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;" title="Reset all filters">
+                    <span class="material-icons" style="font-size: 16px;">close</span> Clear
                   </button>
                 </div>
               </div>
             </div>
 
             <!-- Metrics Cards -->
-            <div class="row g-4 mb-4">
+            <div class="row g-3 mb-4">
               <!-- Total Patients -->
-              <div class="col-md-4 col-lg-2 col-6">
-                <div class="glass-card hoverable d-flex align-items-center gap-2 p-3">
-                  <div class="p-2 bg-primary-subtle text-primary rounded-circle"><span class="material-icons fs-3">people</span></div>
-                  <div>
-                    <h5 class="fw-bold mb-0">{{ statsData.totalPatients }}</h5>
-                    <p class="text-secondary xxs-text mb-0 text-truncate">Total Patients</p>
+              <div class="col-12 col-sm-6 col-md-4 col-xxl-2">
+                <div class="glass-card hoverable d-flex align-items-center gap-2 px-3 py-3 h-100">
+                  <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;"><span class="material-icons fs-5">people</span></div>
+                  <div class="flex-grow-1 min-w-0">
+                    <h5 class="fw-bold mb-0 text-nowrap" style="font-size: 1rem;">{{ statsData.totalPatients }}</h5>
+                    <p class="text-secondary mb-0 text-nowrap" style="font-size: 0.73rem; font-weight: 500;">Total Patients</p>
                   </div>
                 </div>
               </div>
 
               <!-- Total Collection -->
-              <div class="col-md-4 col-lg-2 col-6">
-                <div class="glass-card hoverable d-flex align-items-center gap-2 p-3">
-                  <div class="p-2 bg-success-subtle text-success rounded-circle"><span class="material-icons fs-3">payments</span></div>
-                  <div>
-                    <h5 class="fw-bold mb-0">INR {{ statsData.totalRevenue | number:'1.0-0' }}</h5>
-                    <p class="text-secondary xxs-text mb-0 text-truncate">Total Collection</p>
+              <div class="col-12 col-sm-6 col-md-4 col-xxl-2">
+                <div class="glass-card hoverable d-flex align-items-center gap-2 px-3 py-3 h-100">
+                  <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;"><span class="material-icons fs-5">payments</span></div>
+                  <div class="flex-grow-1 min-w-0">
+                    <h5 class="fw-bold mb-0 text-nowrap" style="font-size: 0.95rem;">INR {{ statsData.totalRevenue | number:'1.0-0' }}</h5>
+                    <p class="text-secondary mb-0 text-nowrap" style="font-size: 0.73rem; font-weight: 500;">Total Collection</p>
                   </div>
                 </div>
               </div>
 
               <!-- Total Appointments -->
-              <div class="col-md-4 col-lg-2 col-6">
-                <div class="glass-card hoverable d-flex align-items-center gap-2 p-3">
-                  <div class="p-2 bg-warning-subtle text-warning rounded-circle"><span class="material-icons fs-3">event_note</span></div>
-                  <div>
-                    <h5 class="fw-bold mb-0">{{ statsData.totalAppointments }}</h5>
-                    <p class="text-secondary xxs-text mb-0 text-truncate">Appointments</p>
+              <div class="col-12 col-sm-6 col-md-4 col-xxl-2">
+                <div class="glass-card hoverable d-flex align-items-center gap-2 px-3 py-3 h-100">
+                  <div class="bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;"><span class="material-icons fs-5">event_note</span></div>
+                  <div class="flex-grow-1 min-w-0">
+                    <h5 class="fw-bold mb-0 text-nowrap" style="font-size: 1rem;">{{ statsData.totalAppointments }}</h5>
+                    <p class="text-secondary mb-0 text-nowrap" style="font-size: 0.73rem; font-weight: 500;">Appointments</p>
                   </div>
                 </div>
               </div>
 
               <!-- New Patients -->
-              <div class="col-md-4 col-lg-2 col-6">
-                <div class="glass-card hoverable d-flex align-items-center gap-2 p-3">
-                  <div class="p-2 bg-info-subtle text-info rounded-circle"><span class="material-icons fs-3">person_add</span></div>
-                  <div>
-                    <h5 class="fw-bold mb-0">{{ statsData.newPatients }}</h5>
-                    <p class="text-secondary xxs-text mb-0 text-truncate">New Patients</p>
+              <div class="col-12 col-sm-6 col-md-4 col-xxl-2">
+                <div class="glass-card hoverable d-flex align-items-center gap-2 px-3 py-3 h-100">
+                  <div class="bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;"><span class="material-icons fs-5">person_add</span></div>
+                  <div class="flex-grow-1 min-w-0">
+                    <h5 class="fw-bold mb-0 text-nowrap" style="font-size: 1rem;">{{ statsData.newPatients }}</h5>
+                    <p class="text-secondary mb-0 text-nowrap" style="font-size: 0.73rem; font-weight: 500;">New Patients</p>
                   </div>
                 </div>
               </div>
 
               <!-- Returning Patients -->
-              <div class="col-md-4 col-lg-2 col-6">
-                <div class="glass-card hoverable d-flex align-items-center gap-2 p-3">
-                  <div class="p-2 bg-danger-subtle text-danger rounded-circle"><span class="material-icons fs-3">autorenew</span></div>
-                  <div>
-                    <h5 class="fw-bold mb-0">{{ statsData.returningPatients }}</h5>
-                    <p class="text-secondary xxs-text mb-0 text-truncate">Returning</p>
+              <div class="col-12 col-sm-6 col-md-4 col-xxl-2">
+                <div class="glass-card hoverable d-flex align-items-center gap-2 px-3 py-3 h-100">
+                  <div class="bg-danger-subtle text-danger rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;"><span class="material-icons fs-5">autorenew</span></div>
+                  <div class="flex-grow-1 min-w-0">
+                    <h5 class="fw-bold mb-0 text-nowrap" style="font-size: 1rem;">{{ statsData.returningPatients }}</h5>
+                    <p class="text-secondary mb-0 text-nowrap" style="font-size: 0.73rem; font-weight: 500;">Returning Patients</p>
                   </div>
                 </div>
               </div>
 
               <!-- Avg Revenue per Patient -->
-              <div class="col-md-4 col-lg-2 col-12">
-                <div class="glass-card hoverable d-flex align-items-center gap-2 p-3">
-                  <div class="p-2 bg-secondary-subtle text-secondary rounded-circle"><span class="material-icons fs-3">trending_up</span></div>
-                  <div>
-                    <h5 class="fw-bold mb-0">INR {{ statsData.averageRevenuePerPatient | number:'1.0-0' }}</h5>
-                    <p class="text-secondary xxs-text mb-0 text-truncate">Avg Rev/Patient</p>
+              <div class="col-12 col-sm-6 col-md-4 col-xxl-2">
+                <div class="glass-card hoverable d-flex align-items-center gap-2 px-3 py-3 h-100">
+                  <div class="bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;"><span class="material-icons fs-5">trending_up</span></div>
+                  <div class="flex-grow-1 min-w-0">
+                    <h5 class="fw-bold mb-0 text-nowrap" style="font-size: 0.95rem;">INR {{ statsData.averageRevenuePerPatient | number:'1.0-0' }}</h5>
+                    <p class="text-secondary mb-0 text-nowrap" style="font-size: 0.73rem; font-weight: 500;">Avg Rev/Patient</p>
                   </div>
                 </div>
               </div>
@@ -211,7 +211,7 @@ import { Chart } from 'chart.js/auto';
             <div class="row g-4 mb-4">
               <div class="col-lg-6">
                 <div class="glass-card">
-                  <h6 class="fw-bold text-primary mb-3">Collection Trend</h6>
+                  <h5 class="fw-bold text-primary text-center mb-3 fs-5">Collection Trend</h5>
                   <div style="position: relative; height:240px;">
                     <canvas id="revenueChart"></canvas>
                   </div>
@@ -220,7 +220,7 @@ import { Chart } from 'chart.js/auto';
 
               <div class="col-lg-6">
                 <div class="glass-card">
-                  <h6 class="fw-bold text-primary mb-3">Monthly Patient Growth</h6>
+                  <h5 class="fw-bold text-primary text-center mb-3 fs-5">Monthly Patient Growth</h5>
                   <div style="position: relative; height:240px;">
                     <canvas id="patientGrowthChart"></canvas>
                   </div>
@@ -232,7 +232,7 @@ import { Chart } from 'chart.js/auto';
             <div class="row g-4 mb-4">
               <div class="col-lg-6">
                 <div class="glass-card">
-                  <h6 class="fw-bold text-primary mb-3">Branch-wise Collection Comparison</h6>
+                  <h5 class="fw-bold text-primary text-center mb-3 fs-5">Branch-wise Collection Comparison</h5>
                   <div style="position: relative; height:240px;">
                     <canvas id="branchCollectionChart"></canvas>
                   </div>
@@ -241,7 +241,7 @@ import { Chart } from 'chart.js/auto';
 
               <div class="col-lg-6">
                 <div class="glass-card">
-                  <h6 class="fw-bold text-primary mb-3">Branch-wise Patient Distribution</h6>
+                  <h5 class="fw-bold text-primary text-center mb-3 fs-5">Branch-wise Patient Distribution</h5>
                   <div style="position: relative; height:240px;">
                     <canvas id="branchPatientChart"></canvas>
                   </div>
@@ -252,8 +252,8 @@ import { Chart } from 'chart.js/auto';
             <!-- Charts Row 3: Popular Tests & Recent Activities -->
             <div class="row g-4 mb-4">
               <div class="col-lg-4">
-                <div class="glass-card">
-                  <h6 class="fw-bold text-primary mb-3">Popular Diagnostic Tests</h6>
+                <div class="glass-card h-100">
+                  <h5 class="fw-bold text-primary text-center mb-3 fs-5">Popular Diagnostic Tests</h5>
                   <div style="position: relative; height:320px;">
                     <canvas id="popularChart"></canvas>
                   </div>
@@ -263,7 +263,7 @@ import { Chart } from 'chart.js/auto';
               <div class="col-lg-8">
                 <!-- Recent Activity List -->
                 <div class="glass-card h-100">
-                  <h6 class="fw-bold text-primary mb-3">Recent Booking Activities</h6>
+                  <h5 class="fw-bold text-primary text-center mb-3 fs-5">Recent Booking Activities</h5>
                   <div class="table-responsive" style="max-height: 310px; overflow-y: auto;">
                     <table class="table align-middle small text-secondary">
                       <thead>
@@ -851,20 +851,66 @@ import { Chart } from 'chart.js/auto';
           <form>
             <div class="row g-3">
               <div class="col-12">
+                <label class="form-label small fw-bold text-muted mb-1">Branch Name</label>
                 <input type="text" [(ngModel)]="branchFormData.name" name="bName" class="form-control" placeholder="Branch Name (e.g. Main Center)" />
               </div>
               <div class="col-12">
+                <label class="form-label small fw-bold text-muted mb-1">Address</label>
                 <input type="text" [(ngModel)]="branchFormData.address" name="bAddress" class="form-control" placeholder="Complete Address" />
               </div>
               <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted mb-1">City</label>
                 <input type="text" [(ngModel)]="branchFormData.city" name="bCity" class="form-control" placeholder="City" />
               </div>
               <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted mb-1">Contact Number</label>
                 <input type="tel" [(ngModel)]="branchFormData.contactNumber" name="bContact" class="form-control" placeholder="Contact Number" />
               </div>
               <div class="col-12">
+                <label class="form-label small fw-bold text-muted mb-1">Email</label>
                 <input type="email" [(ngModel)]="branchFormData.email" name="bEmail" class="form-control" placeholder="Branch Email" />
               </div>
+
+              <!-- Letterhead Configuration Header -->
+              <div class="col-12 mt-3 pt-2 border-top">
+                <h6 class="fw-bold text-primary mb-2">Branch Letterhead Settings</h6>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label small fw-bold text-muted mb-1">Gujarati Title Text</label>
+                <input type="text" [(ngModel)]="branchFormData.gujaratiTitle" name="bGujTitle" class="form-control" placeholder="નીઓ લેબોરેટરી" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted mb-1">Doctor 1 Name</label>
+                <input type="text" [(ngModel)]="branchFormData.doctor1Name" name="bDoc1Name" class="form-control" placeholder="Ankur Ramani" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted mb-1">Doctor 1 Degrees</label>
+                <input type="text" [(ngModel)]="branchFormData.doctor1Degree" name="bDoc1Deg" class="form-control" placeholder="B.Voc , PGDMLT" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted mb-1">Doctor 2 Name</label>
+                <input type="text" [(ngModel)]="branchFormData.doctor2Name" name="bDoc2Name" class="form-control" placeholder="Hardik Ramani" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted mb-1">Doctor 2 Degrees</label>
+                <input type="text" [(ngModel)]="branchFormData.doctor2Degree" name="bDoc2Deg" class="form-control" placeholder="BSC. Micro, MSC. Embryo, PGDMLT" />
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold text-muted mb-1">Timings Info</label>
+                <input type="text" [(ngModel)]="branchFormData.timingInfo" name="bTimings" class="form-control" placeholder="8:00 AM to 8:00 PM" />
+              </div>
+
+              <!-- Upload Letterhead Image Template -->
+              <div class="col-12" *ngIf="branchFormData.branchId">
+                <label class="form-label small fw-bold text-primary mb-1">Upload Letterhead Image Template (.png / .jpg)</label>
+                <input type="file" (change)="onLetterheadFileSelected($event)" accept="image/png, image/jpeg" class="form-control" />
+                <div class="small text-muted mt-1" *ngIf="branchFormData.letterheadImagePath">
+                  <span class="badge bg-success-subtle text-success">Custom Letterhead Active</span>
+                  <span class="ms-2 font-monospace">{{ branchFormData.letterheadImagePath }}</span>
+                </div>
+              </div>
+
               <div class="col-12" *ngIf="branchFormData.branchId">
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" role="switch" id="activeSwitch" [(ngModel)]="branchFormData.isActive" name="bActive">
@@ -1716,13 +1762,53 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   }
 
   openBranchModal(): void {
-    this.branchFormData = { branchId: 0, name: '', address: '', city: '', contactNumber: '', email: '', isActive: true };
+    this.branchFormData = {
+      branchId: 0,
+      name: '',
+      address: '',
+      city: '',
+      contactNumber: '',
+      email: '',
+      isActive: true,
+      gujaratiTitle: 'નીઓ લેબોરેટરી',
+      doctor1Name: 'Ankur Ramani',
+      doctor1Degree: 'B.Voc , PGDMLT',
+      doctor2Name: 'Hardik Ramani',
+      doctor2Degree: 'BSC. Micro, MSC. Embryo, PGDMLT',
+      timingInfo: '8:00 AM to 8:00 PM',
+      letterheadImagePath: null
+    };
     this.showBranchModal = true;
   }
 
   openEditBranchModal(branch: any): void {
-    this.branchFormData = { ...branch };
+    this.branchFormData = {
+      gujaratiTitle: 'નીઓ લેબોરેટરી',
+      doctor1Name: 'Ankur Ramani',
+      doctor1Degree: 'B.Voc , PGDMLT',
+      doctor2Name: 'Hardik Ramani',
+      doctor2Degree: 'BSC. Micro, MSC. Embryo, PGDMLT',
+      timingInfo: '8:00 AM to 8:00 PM',
+      ...branch
+    };
     this.showBranchModal = true;
+  }
+
+  onLetterheadFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (!file || !this.branchFormData.branchId) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.api.post<any>(`branch/${this.branchFormData.branchId}/upload-letterhead`, formData).subscribe({
+      next: (res) => {
+        this.toast.showSuccess('Letterhead template image uploaded successfully.');
+        this.branchFormData.letterheadImagePath = res.FilePath || res.RelativePath;
+        this.loadAdminData();
+      },
+      error: () => this.toast.showError('Failed to upload letterhead image.')
+    });
   }
 
   saveBranch(): void {
@@ -1732,12 +1818,16 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     }
     
     if (this.branchFormData.branchId) {
-      // Update
+      // Update basic branch details & letterhead
       this.api.put('branch', this.branchFormData).subscribe({
-        next: (res: any) => {
-          this.toast.showSuccess(res.Message || 'Branch updated successfully.');
-          this.showBranchModal = false;
-          this.loadAdminData();
+        next: () => {
+          this.api.put(`branch/${this.branchFormData.branchId}/letterhead`, this.branchFormData).subscribe({
+            next: (res: any) => {
+              this.toast.showSuccess(res.Message || 'Branch & Letterhead updated successfully.');
+              this.showBranchModal = false;
+              this.loadAdminData();
+            }
+          });
         }
       });
     } else {

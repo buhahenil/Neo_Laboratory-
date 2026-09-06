@@ -77,6 +77,7 @@ G:\Leb\backend\Leb.API\obj\Debug\net8.0\Leb.API.AssemblyInfo.cs
 G:\Leb\backend\Leb.API\obj\Debug\net8.0\Leb.API.csproj.CoreCompileInputs.cache
 G:\Leb\backend\Leb.API\obj\Debug\net8.0\Leb.API.MvcApplicationPartsAssemblyInfo.cs
 G:\Leb\backend\Leb.API\obj\Debug\net8.0\Leb.API.MvcApplicationPartsAssemblyInfo.cache
+G:\Leb\backend\Leb.API\obj\Debug\net8.0\Leb.API.sourcelink.json
 G:\Leb\backend\Leb.API\obj\Debug\net8.0\rjimswa.dswa.cache.json
 G:\Leb\backend\Leb.API\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 G:\Leb\backend\Leb.API\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json

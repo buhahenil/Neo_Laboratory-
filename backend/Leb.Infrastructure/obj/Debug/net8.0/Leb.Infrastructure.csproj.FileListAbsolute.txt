@@ -8,6 +8,7 @@ G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.GeneratedM
 G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.AssemblyInfoInputs.cache
 G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.AssemblyInfo.cs
 G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.csproj.CoreCompileInputs.cache
+G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.sourcelink.json
 G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infr.CF92CE3E.Up2Date
 G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\Leb.Infrastructure.dll
 G:\Leb\backend\Leb.Infrastructure\obj\Debug\net8.0\refint\Leb.Infrastructure.dll

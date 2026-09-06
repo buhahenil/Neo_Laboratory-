@@ -8,4 +8,12 @@ namespace Leb.Core.DTOs
         public string? Remarks { get; set; }
         public int StaffId { get; set; }
     }
+
+    public class OutsourceDispatchDto
+    {
+        public int ReportId { get; set; }
+        public bool IsOutsourced { get; set; }
+        public string? ExternalLabName { get; set; }
+        public string? ExternalBarcode { get; set; }
+    }
 }

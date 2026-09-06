@@ -55,6 +55,7 @@ namespace Leb.Core.Interfaces
         Task UpdateBranchAsync(Branch branch);
         Task DeleteBranchAsync(int branchId);
         Task<IEnumerable<Branch>> GetAllBranchesAsync();
+        Task UpdateBranchLetterheadAsync(int branchId, string? gujaratiTitle, string? doctor1Name, string? doctor1Degree, string? doctor2Name, string? doctor2Degree, string? timingInfo, string? letterheadImagePath);
     }
 
     public interface ITimeSlotRepository
@@ -113,6 +114,7 @@ namespace Leb.Core.Interfaces
         Task UpdateAppointmentPaymentStatusAsync(int appointmentId, string paymentStatus, decimal paidAmount);
         Task RescheduleAppointmentAsync(int appointmentId, DateTime date, int slotId);
         Task CancelAppointmentAsync(int appointmentId);
+        Task LogPrintAuditAsync(int appointmentId, int staffId);
     }
 
     public interface IReportRepository
@@ -120,6 +122,7 @@ namespace Leb.Core.Interfaces
         Task<int> CreateReportAsync(Report report);
         Task<Report?> GetReportByIdAsync(int reportId);
         Task<IEnumerable<Report>> GetReportsByAppointmentAsync(int appointmentId);
+        Task UpdateReportOutsourceAsync(int reportId, bool isOutsourced, string? externalLabName, string? externalBarcode);
     }
 
     public interface IPaymentRepository

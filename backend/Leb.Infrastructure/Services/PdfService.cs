@@ -10,7 +10,7 @@ namespace Leb.Infrastructure.Services
 {
     public class PdfService : IPdfService
     {
-        public byte[] GenerateReportPdf(Appointment appointment, IEnumerable<Report> reports)
+        public byte[] GenerateReportPdf(Appointment appointment, IEnumerable<Report> reports, Branch? branch = null, bool preprinted = false)
         {
             var document = new PdfDocument();
             var page = document.AddPage();
@@ -20,115 +20,184 @@ namespace Leb.Infrastructure.Services
             double pageHeight = page.Height.Point;
 
             // Fonts
-            var fontTitle = new XFont("Arial", 20, XFontStyleEx.Bold);
-            var fontSubtitle = new XFont("Arial", 12, XFontStyleEx.Bold);
-            var fontLabel = new XFont("Arial", 10, XFontStyleEx.Bold);
-            var fontValue = new XFont("Arial", 10, XFontStyleEx.Regular);
-            var fontTableHeader = new XFont("Arial", 10, XFontStyleEx.Bold);
+            var fontTitle = new XFont("Arial", 18, XFontStyleEx.Bold);
+            var fontSubtitle = new XFont("Arial", 11, XFontStyleEx.Bold);
+            var fontLabel = new XFont("Arial", 9, XFontStyleEx.Bold);
+            var fontValue = new XFont("Arial", 9, XFontStyleEx.Regular);
+            var fontTableHeader = new XFont("Arial", 9, XFontStyleEx.Bold);
             var fontTableBody = new XFont("Arial", 9, XFontStyleEx.Regular);
             var fontWatermark = new XFont("Arial", 8, XFontStyleEx.Italic);
+            var fontDoctorName = new XFont("Arial", 10, XFontStyleEx.Bold);
+            var fontDoctorDegree = new XFont("Arial", 8, XFontStyleEx.Regular);
 
-            // Draw Header Banner
-            var rectHeader = new XRect(20, 20, pageWidth - 40, 60);
-            gfx.DrawRectangle(XBrushes.RoyalBlue, rectHeader);
-            
-            gfx.DrawString("NEO LEBORETORY", fontTitle, XBrushes.White, 35, 55);
-            gfx.DrawString("Precision Health & Diagnostics", fontWatermark, XBrushes.LightSkyBlue, 35, 72);
+            // 1. Render Background Graphic / Header (Only in Digital Mode)
+            if (!preprinted)
+            {
+                bool hasImage = branch != null && !string.IsNullOrEmpty(branch.LetterheadImagePath) && File.Exists(branch.LetterheadImagePath);
+                if (hasImage)
+                {
+                    try
+                    {
+                        using (var img = XImage.FromFile(branch.LetterheadImagePath!))
+                        {
+                            gfx.DrawImage(img, 0, 0, pageWidth, pageHeight);
+                        }
+                    }
+                    catch
+                    {
+                        DrawDefaultLetterhead(gfx, pageWidth, pageHeight, branch, fontTitle, fontWatermark, fontDoctorName, fontDoctorDegree);
+                    }
+                }
+                else
+                {
+                    DrawDefaultLetterhead(gfx, pageWidth, pageHeight, branch, fontTitle, fontWatermark, fontDoctorName, fontDoctorDegree);
+                }
+            }
 
-            // Draw Laboratory Contact Details
-            double yPos = 95;
-            gfx.DrawString($"Branch: {appointment.BranchName}", fontValue, XBrushes.Black, 20, yPos);
-            gfx.DrawString($"Address: {appointment.BranchAddress}, {appointment.BranchCity}", fontValue, XBrushes.Black, 20, yPos + 15);
-            gfx.DrawString($"Phone: {appointment.PatientPhone}", fontValue, XBrushes.Black, 20, yPos + 30);
+            // 2. Patient Demographics & Report Metadata
+            double yPos = 145; // Start offset below letterhead header
 
-            gfx.DrawString($"Date: {appointment.AppointmentDate.ToString("yyyy-MM-dd")}", fontLabel, XBrushes.Black, pageWidth - 180, yPos);
-            gfx.DrawString($"Status: {appointment.Status}", fontLabel, XBrushes.Red, pageWidth - 180, yPos + 15);
-            gfx.DrawString($"Report ID: REP-{appointment.AppointmentId}", fontLabel, XBrushes.Black, pageWidth - 180, yPos + 30);
+            gfx.DrawRectangle(XBrushes.GhostWhite, new XRect(20, yPos, pageWidth - 40, 55));
+            gfx.DrawRectangle(XPens.LightGray, new XRect(20, yPos, pageWidth - 40, 55));
 
-            // Separator Line
-            gfx.DrawLine(XPens.DarkGray, 20, 140, pageWidth - 20, 140);
+            double pY = yPos + 16;
+            gfx.DrawString("PATIENT NAME:", fontLabel, XBrushes.DarkSlateGray, 30, pY);
+            gfx.DrawString($"{appointment.PatientFirstName} {appointment.PatientLastName}", fontSubtitle, XBrushes.Black, 120, pY);
 
-            // Patient Information
-            gfx.DrawString("PATIENT DEMOGRAPHICS", fontSubtitle, XBrushes.RoyalBlue, 20, 160);
-            
-            yPos = 180;
-            gfx.DrawString("Name:", fontLabel, XBrushes.Black, 20, yPos);
-            gfx.DrawString($"{appointment.PatientFirstName} {appointment.PatientLastName}", fontValue, XBrushes.Black, 80, yPos);
+            gfx.DrawString("REPORT ID:", fontLabel, XBrushes.DarkSlateGray, pageWidth - 200, pY);
+            gfx.DrawString($"REP-{appointment.AppointmentId}", fontLabel, XBrushes.DarkRed, pageWidth - 120, pY);
 
-            gfx.DrawString("Age / Gender:", fontLabel, XBrushes.Black, 20, yPos + 15);
+            pY += 18;
             int age = DateTime.Today.Year - appointment.DateOfBirth.Year;
             if (appointment.DateOfBirth > DateTime.Today.AddYears(-age)) age--;
-            gfx.DrawString($"{age} Years / {appointment.Gender}", fontValue, XBrushes.Black, 110, yPos + 15);
 
-            gfx.DrawString("Patient Phone:", fontLabel, XBrushes.Black, pageWidth / 2, yPos);
-            gfx.DrawString(appointment.PatientPhone, fontValue, XBrushes.Black, (pageWidth / 2) + 100, yPos);
+            gfx.DrawString("AGE / GENDER:", fontLabel, XBrushes.DarkSlateGray, 30, pY);
+            gfx.DrawString($"{age} Yrs / {appointment.Gender}", fontValue, XBrushes.Black, 120, pY);
 
-            gfx.DrawString("Ref. Doctor:", fontLabel, XBrushes.Black, pageWidth / 2, yPos + 15);
+            gfx.DrawString("DATE:", fontLabel, XBrushes.DarkSlateGray, pageWidth - 200, pY);
+            gfx.DrawString(appointment.AppointmentDate.ToString("yyyy-MM-dd"), fontValue, XBrushes.Black, pageWidth - 120, pY);
+
+            pY += 18;
+            gfx.DrawString("REF. DOCTOR:", fontLabel, XBrushes.DarkSlateGray, 30, pY);
             string docName = !string.IsNullOrEmpty(appointment.DoctorFirstName) ? $"Dr. {appointment.DoctorFirstName} {appointment.DoctorLastName}" : "Self Referrer";
-            gfx.DrawString(docName, fontValue, XBrushes.Black, (pageWidth / 2) + 100, yPos + 15);
+            gfx.DrawString(docName, fontValue, XBrushes.Black, 120, pY);
 
-            // Separator Line
-            gfx.DrawLine(XPens.DarkGray, 20, 210, pageWidth - 20, 210);
+            gfx.DrawString("PHONE:", fontLabel, XBrushes.DarkSlateGray, pageWidth - 200, pY);
+            gfx.DrawString(appointment.PatientPhone, fontValue, XBrushes.Black, pageWidth - 120, pY);
 
-            // Test Results Header
-            gfx.DrawString("DIAGNOSTIC TEST RESULTS", fontSubtitle, XBrushes.RoyalBlue, 20, 230);
+            // 3. Test Results Table
+            yPos += 70;
+            gfx.DrawString("DIAGNOSTIC PATHOLOGY REPORT", fontSubtitle, XBrushes.Maroon, 20, yPos);
 
-            // Draw Table Headers
             double xCode = 20;
-            double xName = 100;
-            double xSample = 280;
-            double xValue = 380;
+            double xName = 90;
+            double xSample = 270;
+            double xValue = 370;
             double xNormal = 470;
-            
-            yPos = 255;
-            gfx.DrawRectangle(XBrushes.LightGray, new XRect(20, yPos, pageWidth - 40, 20));
-            gfx.DrawString("CODE", fontTableHeader, XBrushes.Black, xCode + 5, yPos + 14);
-            gfx.DrawString("TEST NAME", fontTableHeader, XBrushes.Black, xName + 5, yPos + 14);
-            gfx.DrawString("SAMPLE TYPE", fontTableHeader, XBrushes.Black, xSample + 5, yPos + 14);
-            gfx.DrawString("OBSERVED VALUE", fontTableHeader, XBrushes.Black, xValue + 5, yPos + 14);
-            gfx.DrawString("REFERENCE RANGE", fontTableHeader, XBrushes.Black, xNormal + 5, yPos + 14);
 
-            yPos = 280;
+            yPos += 12;
+            gfx.DrawRectangle(XBrushes.Maroon, new XRect(20, yPos, pageWidth - 40, 20));
+            gfx.DrawString("CODE", fontTableHeader, XBrushes.White, xCode + 5, yPos + 14);
+            gfx.DrawString("TEST NAME", fontTableHeader, XBrushes.White, xName + 5, yPos + 14);
+            gfx.DrawString("SAMPLE TYPE", fontTableHeader, XBrushes.White, xSample + 5, yPos + 14);
+            gfx.DrawString("RESULT VALUE", fontTableHeader, XBrushes.White, xValue + 5, yPos + 14);
+            gfx.DrawString("REFERENCE RANGE", fontTableHeader, XBrushes.White, xNormal + 5, yPos + 14);
+
+            yPos += 24;
+            bool hasOutsourced = false;
+
             foreach (var rep in reports)
             {
                 gfx.DrawString(rep.TestCode, fontTableBody, XBrushes.Black, xCode + 5, yPos + 12);
-                gfx.DrawString(rep.TestName, fontTableBody, XBrushes.Black, xName + 5, yPos + 12);
+
+                string testNameStr = rep.TestName;
+                if (rep.IsOutsourced)
+                {
+                    testNameStr += " [Outsourced]";
+                    hasOutsourced = true;
+                }
+                gfx.DrawString(testNameStr, fontTableBody, XBrushes.Black, xName + 5, yPos + 12);
                 gfx.DrawString(rep.SampleType, fontTableBody, XBrushes.Black, xSample + 5, yPos + 12);
-                
+
                 string res = rep.ResultValue ?? "Pending";
                 var valColor = res == "Pending" ? XBrushes.Red : XBrushes.DarkGreen;
                 gfx.DrawString(res, fontLabel, valColor, xValue + 5, yPos + 12);
-                
+
                 gfx.DrawString(rep.NormalRange ?? "N/A", fontTableBody, XBrushes.Black, xNormal + 5, yPos + 12);
+
+                if (rep.IsOutsourced && !string.IsNullOrEmpty(rep.ExternalLabName))
+                {
+                    yPos += 14;
+                    gfx.DrawString($"Ref. Lab: {rep.ExternalLabName} | Barcode: {rep.ExternalBarcode ?? "N/A"}", fontWatermark, XBrushes.DarkBlue, xName + 5, yPos + 10);
+                }
 
                 if (!string.IsNullOrEmpty(rep.Remarks))
                 {
-                    yPos += 15;
-                    gfx.DrawString($"Remarks: {rep.Remarks}", fontWatermark, XBrushes.Gray, xName + 5, yPos + 10);
+                    yPos += 14;
+                    gfx.DrawString($"Remarks: {rep.Remarks}", fontWatermark, XBrushes.DimGray, xName + 5, yPos + 10);
                 }
 
-                yPos += 25;
+                yPos += 22;
                 gfx.DrawLine(XPens.LightGray, 20, yPos - 5, pageWidth - 20, yPos - 5);
             }
 
-            // Draw QR Code Simulator block at the bottom
-            double qrY = pageHeight - 120;
-            gfx.DrawRectangle(XBrushes.WhiteSmoke, new XRect(20, qrY, pageWidth - 40, 80));
-            gfx.DrawRectangle(XPens.DarkGray, new XRect(20, qrY, pageWidth - 40, 80));
+            // 4. Outsourced Footnote & Verification QR Section
+            if (hasOutsourced)
+            {
+                yPos += 10;
+                gfx.DrawString("* Note: Tests marked with [Outsourced] were dispatched to authorized third-party reference laboratories.", fontWatermark, XBrushes.DarkBlue, 20, yPos);
+            }
 
-            // Simulated QR Grid
-            double qrX = 35;
-            gfx.DrawRectangle(XPens.Black, XBrushes.Black, new XRect(qrX, qrY + 10, 60, 60));
-            gfx.DrawRectangle(XPens.White, XBrushes.White, new XRect(qrX + 10, qrY + 20, 40, 40));
-            gfx.DrawRectangle(XPens.Black, XBrushes.Black, new XRect(qrX + 20, qrY + 30, 20, 20));
+            // Digital QR Verification block near footer
+            double qrY = pageHeight - 110;
+            gfx.DrawRectangle(XBrushes.WhiteSmoke, new XRect(20, qrY, pageWidth - 40, 55));
+            gfx.DrawRectangle(XPens.Silver, new XRect(20, qrY, pageWidth - 40, 55));
 
-            gfx.DrawString("ONLINE REPORT VERIFICATION", fontSubtitle, XBrushes.RoyalBlue, qrX + 80, qrY + 25);
-            gfx.DrawString("This report is digitally signed and secure.", fontValue, XBrushes.Black, qrX + 80, qrY + 42);
-            gfx.DrawString($"Scan OR visit: https://neoleboretory.lab/verify/REP-{appointment.AppointmentId}", fontWatermark, XBrushes.RoyalBlue, qrX + 80, qrY + 58);
+            double qrX = 30;
+            gfx.DrawRectangle(XPens.Maroon, XBrushes.Maroon, new XRect(qrX, qrY + 8, 40, 40));
+            gfx.DrawRectangle(XPens.White, XBrushes.White, new XRect(qrX + 7, qrY + 15, 26, 26));
+            gfx.DrawRectangle(XPens.Maroon, XBrushes.Maroon, new XRect(qrX + 13, qrY + 21, 14, 14));
+
+            gfx.DrawString("DIGITALLY SIGNED & VERIFIED REPORT", fontSubtitle, XBrushes.Maroon, qrX + 55, qrY + 20);
+            gfx.DrawString($"Scan OR visit https://neoleboretory.lab/verify/REP-{appointment.AppointmentId} to verify authenticity.", fontWatermark, XBrushes.SlateGray, qrX + 55, qrY + 36);
 
             using var stream = new MemoryStream();
             document.Save(stream);
             return stream.ToArray();
+        }
+
+        private static void DrawDefaultLetterhead(XGraphics gfx, double pageWidth, double pageHeight, Branch? branch, XFont fontTitle, XFont fontWatermark, XFont fontDoctorName, XFont fontDoctorDegree)
+        {
+            // Default Header Bar
+            var rectHeader = new XRect(0, 0, pageWidth, 75);
+            gfx.DrawRectangle(XBrushes.Maroon, rectHeader);
+
+            string title = branch?.GujaratiTitle ?? "નીઓ લેબોરેટરી";
+            gfx.DrawString(title, fontTitle, XBrushes.White, 35, 45);
+
+            // Doctors Box
+            double docX = pageWidth - 220;
+            string doc1 = branch?.Doctor1Name ?? "Ankur Ramani";
+            string deg1 = branch?.Doctor1Degree ?? "B.Voc , PGDMLT";
+            string doc2 = branch?.Doctor2Name ?? "Hardik Ramani";
+            string deg2 = branch?.Doctor2Degree ?? "BSC. Micro, MSC. Embryo, PGDMLT";
+
+            gfx.DrawString(doc1, fontDoctorName, XBrushes.White, docX, 25);
+            gfx.DrawString($"({deg1})", fontDoctorDegree, XBrushes.LightPink, docX, 37);
+
+            gfx.DrawString(doc2, fontDoctorName, XBrushes.White, docX, 52);
+            gfx.DrawString($"({deg2})", fontDoctorDegree, XBrushes.LightPink, docX, 64);
+
+            // Footer Bar
+            var rectFooter = new XRect(0, pageHeight - 35, pageWidth, 35);
+            gfx.DrawRectangle(XBrushes.Maroon, rectFooter);
+
+            string phone = branch?.ContactNumber ?? "+91 83203 23244";
+            string timing = branch?.TimingInfo ?? "8:00 AM to 8:00 PM";
+            string address = branch != null ? $"{branch.Address}, {branch.City}" : "Opp. Neo Hospital, Nikava, Tal. Kalavad, Dist. Jamnagar.";
+
+            gfx.DrawString($"Ph: {phone} | Timings: {timing}", fontDoctorDegree, XBrushes.White, 20, pageHeight - 15);
+            gfx.DrawString(address, fontDoctorDegree, XBrushes.White, pageWidth / 2 - 60, pageHeight - 15);
         }
 
         public byte[] GenerateInvoicePdf(Appointment appointment, Invoice invoice)

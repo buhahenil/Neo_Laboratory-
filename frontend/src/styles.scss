@@ -482,12 +482,12 @@ table.table {
     opacity: 0.8;
     background: transparent;
     border: none;
-    margin: 2px 10px;
-    padding: 10px 12px;
-    border-radius: 8px;
+    margin: 2px 0;
+    padding: 10px 14px;
+    border-radius: 10px;
     transition: all 0.2s ease;
     text-align: left;
-    width: calc(100% - 20px);
+    width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -21,7 +21,7 @@ namespace Leb.Core.Interfaces
 
     public interface IPdfService
     {
-        byte[] GenerateReportPdf(Appointment appointment, System.Collections.Generic.IEnumerable<Report> reports);
+        byte[] GenerateReportPdf(Appointment appointment, System.Collections.Generic.IEnumerable<Report> reports, Branch? branch = null, bool preprinted = false);
         byte[] GenerateInvoicePdf(Appointment appointment, Invoice invoice);
     }
 

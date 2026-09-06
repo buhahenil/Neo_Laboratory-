@@ -93,6 +93,70 @@ namespace Leb.API.Controllers
             return Ok(new { Message = "Branch deleted successfully." });
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}/letterhead")]
+        public async Task<IActionResult> UpdateLetterhead(int id, [FromBody] Branch letterheadDto)
+        {
+            await _branchRepository.UpdateBranchLetterheadAsync(
+                id,
+                letterheadDto.GujaratiTitle,
+                letterheadDto.Doctor1Name,
+                letterheadDto.Doctor1Degree,
+                letterheadDto.Doctor2Name,
+                letterheadDto.Doctor2Degree,
+                letterheadDto.TimingInfo,
+                letterheadDto.LetterheadImagePath);
+
+            await _auditLogRepository.CreateAuditLogAsync(new AuditLog
+            {
+                Action = "UPDATE_LETTERHEAD",
+                TableName = "Branches",
+                RecordId = id,
+                NewValues = $"Title: {letterheadDto.GujaratiTitle}, Doc1: {letterheadDto.Doctor1Name}"
+            });
+
+            return Ok(new { Message = "Branch letterhead updated successfully." });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{id}/upload-letterhead")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadLetterhead(int id, [FromForm] UploadLetterheadDto dto)
+        {
+            var file = dto?.File;
+            if (file == null || file.Length == 0)
+                return BadRequest(new { Message = "No file uploaded." });
+
+            string uploadsFolder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "letterheads");
+            if (!System.IO.Directory.Exists(uploadsFolder))
+                System.IO.Directory.CreateDirectory(uploadsFolder);
+
+            string ext = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (ext != ".png" && ext != ".jpg" && ext != ".jpeg")
+                return BadRequest(new { Message = "Only PNG or JPG images are allowed." });
+
+            string fileName = $"branch_{id}{ext}";
+            string filePath = System.IO.Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            string relativePath = System.IO.Path.Combine("wwwroot", "uploads", "letterheads", fileName);
+            await _branchRepository.UpdateBranchLetterheadAsync(id, null, null, null, null, null, null, filePath);
+
+            await _auditLogRepository.CreateAuditLogAsync(new AuditLog
+            {
+                Action = "UPLOAD_LETTERHEAD_IMAGE",
+                TableName = "Branches",
+                RecordId = id,
+                NewValues = $"Path: {filePath}"
+            });
+
+            return Ok(new { Message = "Letterhead image uploaded successfully.", FilePath = filePath, RelativePath = relativePath });
+        }
+
         // --- TIME SLOTS ---
         [HttpGet("{id}/slots")]
         public async Task<IActionResult> GetSlots(int id)
@@ -148,5 +212,10 @@ namespace Leb.API.Controllers
             await _holidayRepository.DeleteHolidayAsync(id);
             return Ok(new { Message = "Holiday removed successfully." });
         }
+    }
+
+    public class UploadLetterheadDto
+    {
+        public Microsoft.AspNetCore.Http.IFormFile File { get; set; } = null!;
     }
 }
